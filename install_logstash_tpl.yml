@@ -1,0 +1,47 @@
+job-template:
+    id: install_logstash
+    name: '{job_name}'
+    project-type: pipeline
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: jenkins_home
+          default: '{jenkins_home|/hdapp/jenkins_home}'
+          description: 'jenkins安装目录'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.install_logstash
+        lightweight-checkout: true

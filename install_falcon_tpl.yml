@@ -1,0 +1,92 @@
+job-template:
+    id: install_falcon
+    name: '{job_name}'
+    project-type: pipeline
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: ssh_ip
+          default: ''
+          description: 'ssh_host'
+      - string:
+          name: ssh_port
+          default: ''
+          description: 'ssh_port'
+      - string:
+          name: ssh_user
+          default: ''
+          description: 'ssh_user'
+      - string:
+          name: rds_hostname
+          default: ''
+          description: 'rds_hostname'
+      - string:
+          name: rds_port
+          default: '3306'
+          description: 'rds_port'
+          trim: true
+      - string:
+          name: rds_user
+          default: ''
+          description: 'rds_user'
+      - string:
+          name: rds_password
+          default: ''
+          description: 'rds_password'
+      - string:
+          name: falonredis_port
+          default: '6379'
+          description: 'falonredis_port'
+      - string:
+          name: falcontransfer_8433port
+          default: '8443'
+          description: 'falcontransfer_8433port'
+      - string:
+          name: falconapi_8080port
+          default: '8080'
+          description: 'falconapi_8080port'
+      - string:
+          name: falconheartbeat_6030port
+          default: '6030'
+          description: 'falconheartbeat_6030port'
+      - string:
+          name: falcondashboard_8081port
+          default: '8081'
+          description: 'falcondashboard_8081port'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.install_falcon
+        lightweight-checkout: true

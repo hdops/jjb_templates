@@ -1,0 +1,64 @@
+job-template:
+    id: dft_nginx_accesslog_status_check
+    name: '{job_name}'
+    project-type: pipeline
+    triggers: '{triggers_definition|}'
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - choice:
+          name: DNET_PROFILE
+          description: profile
+          choices: '{DNET_PROFILE}'
+      - choice:
+          name: DNET_PRODUCT
+          description: product
+          choices: '{DNET_PRODUCT}'
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: query
+          default: '{query|response=500}'
+          description: query
+          trim: true
+      - string:
+          name: interval
+          default: '{interval|15m}'
+          description: 查询指定时间间隔内的数据，1h标识1小时前, 1d一天前,15m标识15分钟前
+      - string:
+          name: receivers
+          default: '{receivers|gaoweizong@hd123.com,lishuaiqi@hd123.com,buhaiqing@hd123.com}'
+          description: 收件人
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.dft_nginx_accesslog_status_check
+        lightweight-checkout: true

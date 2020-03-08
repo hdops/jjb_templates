@@ -1,0 +1,94 @@
+job-template: 
+    id: dly_db_upgrade
+    name: '{job_name}'
+    project-type: pipeline
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - choice:
+          name: DNET_PROFILE
+          description: profile
+          choices: '{DNET_PROFILE}'
+      - choice:
+          name: DNET_PRODUCT
+          description: product
+          choices: '{DNET_PRODUCT}'
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: subsystem
+          default: '{subsystem|account}'
+          description: 子系统，多值以逗号分隔
+      - choice:
+          name: tag
+          description: ''
+          choices:
+            - None
+            - blue
+            - green
+      - choice:
+          name: skipversion
+          description: 数据库升级是否跳过版本检查
+          choices:
+            - --no-skipversion
+            - --skipversion
+      - choice:
+          name: skipversionupdate
+          description: 数据库升级是否跳过版本号更新
+          choices:
+            - --no-skipversionupdate
+            - --skipversionupdate
+      - string:
+          name: timeout
+          default: '45'
+          description: 这个job的超时时间，升级数据库的超时时间，必须是整数，单位是分钟
+      - string:
+          name: threadcount
+          default: '5'
+          description: ecs上执行数据库升级的线程
+      - string:
+          name: PRESET_IMAGE_VERSION
+          default: 'None'
+          description: ''
+      - string:
+          name: receivers
+          default: '{receivers|wangfei1@hd123.com}'
+          description: 收件人，多值以逗号分隔
+      - string:
+          name: RECEIVERS_WHEN_SUCCEED
+          default: '{RECEIVERS_WHEN_SUCCEED|wangfei1@hd123.com}'
+          description: 收件人，多值以逗号分隔
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.dly_db_upgrade
+        lightweight-checkout: true

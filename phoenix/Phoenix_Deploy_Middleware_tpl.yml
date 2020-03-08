@@ -1,0 +1,61 @@
+job-template:
+    id: Phoenix_Deploy_Middleware
+    name: '{job_name}'
+    project-type: pipeline
+    triggers: '{triggers_definition|}'
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - string:
+          name: GIT_GROUP
+          default: '{GIT_GROUP|phoenix-config}'
+          description: git group
+          trim: true
+      - string:
+          name: GIT_REPONAME
+          default: '{GIT_REPONAME|heading}'
+          description: git repo name ,必须在 phoenix-config group 下面
+          trim: true
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|uat}'
+          description: git_url 的分支
+          trim: true
+      - choice:
+          name: dryrun
+          description: 'True只打印命令，不执行 False执行命令'
+          choices:
+            - 'False'
+            - 'True'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/phoenix/Jenkinsfile.Phoenix_Deploy_Middleware
+        lightweight-checkout: true

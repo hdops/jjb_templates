@@ -1,0 +1,69 @@
+job-template: 
+    id: pt_online_sql_file
+    name: '{job_name}'
+    project-type: pipeline
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - choice:
+          name: DNET_PROFILE
+          description: profile
+          choices: '{DNET_PROFILE}'
+      - choice:
+          name: DNET_PRODUCT
+          description: product
+          choices: '{DNET_PRODUCT}'
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: JIRA
+          default: ''
+          description: 任务单号 以任务单号命名的文件夹
+      - string:
+          name: MAX_LOAD_THREADS
+          default: '200'
+          description: 这个job的超时时间，升级数据库的超时时间，必须是整数，单位是分钟
+      - string:
+          name: CRITICAL_LOAD_THREADS
+          default: '250'
+          description: 最大线程数HARD
+      - choice:
+          name: dryrun
+          description: ''
+          choices:
+            - 'True'
+            - 'False'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.pt_online_sql_file
+        lightweight-checkout: true

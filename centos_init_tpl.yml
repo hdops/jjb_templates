@@ -1,0 +1,62 @@
+job-template:
+    id: centos_init
+    name: '{job_name}'
+    project-type: pipeline
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - string:
+          name: hosts
+          default: ''
+          description: inventory,format(hostname1:ip1,hostname2:ip2)
+      - string:
+          name: port
+          default: ''
+          description: ssh port
+      - string:
+          name: user
+          default: ''
+          description: ssh user
+      - string:
+          name: password
+          default: ''
+          description: ssh user password
+      - string:
+          name: filename
+          default: 'centos_int'
+          description: output to inventory/$filename
+      - string:
+          name: tags
+          default: 'centos_int'
+          description: tags
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.centos_init
+        lightweight-checkout: true

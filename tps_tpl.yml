@@ -1,0 +1,56 @@
+job-template:
+    id: tps
+    name: '{job_name}'
+    project-type: pipeline
+    triggers: '{triggers_definition|}'
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - choice:
+          name: DNET_PROFILE
+          description: profile
+          choices: '{DNET_PROFILE}'
+      - choice:
+          name: DNET_PRODUCT
+          description: product
+          choices: '{DNET_PRODUCT}'
+      - string:
+          name: DNET_EXPORT_FILE
+          default: '{DNET_EXPORT_FILE}'
+          description: 配置文件名
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.tps
+        lightweight-checkout: true

@@ -1,0 +1,66 @@
+job-template:
+    id: env
+    name: '{job_name}'
+    project-type: pipeline
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - choice:
+          name: DNET_PROFILE
+          description: profile
+          choices: '{DNET_PROFILE}'
+      - choice:
+          name: DNET_PRODUCT
+          description: product
+          choices: '{DNET_PRODUCT}'
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: gitpath
+          default: '{gitpath|None}'
+          description: ''
+      - string:
+          name: image
+          default: ''
+          description: 镜像名称，多值以逗号分隔
+      - string:
+          name: version
+          default: ''
+          description: ''
+      - string:
+          name: sourcefrom
+          default: '{sourcefrom|git}'
+          description: 'git or oss'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.env
+        lightweight-checkout: true

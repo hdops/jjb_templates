@@ -1,0 +1,5 @@
+job-template:
+    id: folder
+    name: '{job_name}'
+    project-type: folder
+    description: '{description|sample}'

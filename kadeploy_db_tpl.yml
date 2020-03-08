@@ -1,0 +1,80 @@
+job-template:
+    id: kadeploy_db
+    name: '{job_name}'
+    description: '{description|sample}'
+    project-type: pipeline
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+        - rebuild:
+            auto-rebuild: true
+            rebuild-disabled: true
+    parameters:
+    - string:
+        description: "版本号"
+        default: ''
+        name: VERSION
+        trim: true
+    - choice:
+        description: "产品列表"
+        choices: '{KAAPPNAME}'
+        name: KAAPPNAME
+    - choice:
+        choices:
+        - upgrade
+        - setup
+        name: MODE
+    - choice:
+        description: "数据库链接"
+        choices: '{DBLINK}'
+        name: DBLINK
+    - string:
+        description: "数据库用户"
+        default: ''
+        name: RDBUSER
+        trim: true
+    - string:
+        description: "数据库密码"
+        default: ''
+        name: RDBPAWD
+        trim: true
+    - string:
+        name: sship
+        default: '{sship}'
+        description: '部署机器ip，无需修改'
+        trim: true
+    - string:
+        name: sshport
+        default: '{sshport}'
+        description: '部署机器端口，无需修改'
+        trim: true
+    - string:
+        name: suffix
+        default: '{suffix}'
+        description: '测试/正式，无需修改'
+        trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"            
+              clean:
+                  before: true
+        script-path: jenkinsfile/kac3/Jenkinsfile.kadeploy_db
+        lightweight-checkout: true
+      
+
+      

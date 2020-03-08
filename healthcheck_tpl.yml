@@ -1,0 +1,78 @@
+job-template:
+    id: health_check
+    name: '{job_name}'
+    project-type: pipeline
+    triggers: '{triggers_definition|}'
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - choice:
+          name: DNET_PROFILE
+          description: profile
+          choices: '{DNET_PROFILE}'
+      - choice:
+          name: DNET_PRODUCT
+          description: product
+          choices: '{DNET_PRODUCT}'
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: subsystem
+          default: '{subsystem}'
+          description: 子系统，多值以逗号分隔
+          trim: true
+      - string:
+          name: svnreversion
+          default: ''
+          description: 上游job传入svn版本号，不需要人为填写
+      - choice:
+          name: TRUST_PUBLIC_IP
+          description: None 表示用内网部署，True 表示用外网部署
+          choices:
+            - 'None'
+            - 'True'
+      - choice:
+          name: tag
+          description: ''
+          choices:
+            - None
+            - blue
+            - green
+      - choice:
+          name: whether_post
+          description: '是否开启构建失败和失败转成功的钉钉推送'
+          choices: '{whether_post}'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: '{git_server_base_url|https://gitee.com/hdops}/jenkins_builder.git'
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.healthcheck
+        lightweight-checkout: true

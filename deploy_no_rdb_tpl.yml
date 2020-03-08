@@ -1,0 +1,92 @@
+job-template: 
+    id: deploy_no_rdb
+    name: '{job_name}'
+    project-type: pipeline
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - choice:
+          name: DNET_PROFILE
+          description: profile
+          choices: '{DNET_PROFILE}'
+      - choice:
+          name: DNET_PRODUCT
+          description: product
+          choices: '{DNET_PRODUCT}'
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|develop}'
+          description: toolset git branch
+          trim: true
+      - string:
+          name: subsystem
+          default: ''
+          description: 子系统，多值以逗号分隔
+      - choice:
+          name: tag
+          description: ''
+          choices:
+            - None
+            - blue
+            - green
+      - string:
+          name: action
+          default: 'deploy'
+          description: deploy or delete
+      - string:
+          name: PRESET_IMAGE_VERSION
+          default: 'None'
+          description: ''
+      - choice:
+          name: TRUST_PUBLIC_IP
+          description: None 表示用内网部署，True 表示用外网部署
+          choices:
+            - 'None'
+            - 'True'
+      - string:
+          name: receivers
+          default: '{receivers|wangfei1@hd123.com}'
+          description: 收件人，多值以逗号分隔
+      - string:
+          name: healthcheck_job
+          default: '{healthcheck_job}'
+          description: 健康检查job
+      - string:
+          name: DNET_AK
+          default: '{DNET_AK|resource/aliyun_access_key.yaml}'
+          description: 'AK配置'
+      - choice:
+          name: whether_post
+          description: '是否开启构建失败和失败转成功的钉钉推送'
+          choices: '{whether_post}'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/Jenkinsfile.deploy_no_rdb
+        lightweight-checkout: true

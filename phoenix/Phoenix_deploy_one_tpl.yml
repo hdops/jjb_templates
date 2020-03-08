@@ -1,0 +1,78 @@
+job-template:
+    id: Phoenix_deploy_one
+    name: '{job_name}'
+    project-type: pipeline
+    triggers: '{triggers_definition|}'
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches: 
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume 
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - string:
+          name: GIT_GROUP
+          default: '{GIT_GROUP|phoenix-config}'
+          description: git group
+          trim: true
+      - string:
+          name: GIT_REPONAME
+          default: '{GIT_REPONAME|heading}'
+          description: git repo name ,必须在 phoenix-config group 下面
+          trim: true
+      - string:
+          name: GIT_BRANCH
+          default: '{GIT_BRANCH|uat}'
+          description: git_url 的分支
+          trim: true
+      - choice:
+          name: action
+          description: ''
+          choices:
+            - setup
+            - upgrade
+      - string:
+          name: subsystem
+          default: '{subsystem|config,account,gateway,pnx_dtask,login,invc,wxauth,mgate,pnx_promotion_adapter,pnx_mbr_adapter,pnx_crm_adapter,pnx_member,pnx_trade,pnx_points_web,pnx_mdata_web,pnx_coupon_web,pnx_promotion_web,pnx_mbr_man,h5,ucenter_web,mbr_web,crm_web,pnx_web_ui}'
+          description: phoenix-tools subsystem
+          trim: true
+      - choice:
+          name: skipversion
+          description: '升级数据库时是否跳过版本检查'
+          choices:
+            - --no-skipversion
+            - --skipversion
+      - choice:
+          name: skipupgrade
+          description: '是否跳过执行数据库升级镜像'
+          choices:
+            - 'False'
+            - 'True'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: https://gitee.com/hdops/jenkins_builder.git
+              branches: "{git_branches}"
+                  
+              clean:
+                  before: true
+        script-path: jenkinsfile/phoenix/Jenkinsfile.Phoenix_deploy_one
+        lightweight-checkout: true
