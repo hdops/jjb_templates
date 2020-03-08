@@ -123,7 +123,7 @@ job-template:
     pipeline-scm:
         scm:
           - git:
-              url: https://gitee.com/hdops/jenkins_builder.git
+              url: '{git_server_base_url|https://gitee.com}/hdops/jenkins_builder.git'
               branches: "{git_branches}"
                   
               clean:
