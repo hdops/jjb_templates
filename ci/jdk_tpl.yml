@@ -1,0 +1,79 @@
+job-template:
+    id: jdk
+    name: '{job_name}'
+    project-type: pipeline
+    description: '{description|sample}'
+    disabled: '{disabled|false}'
+    #####################
+    # Variable Defaults #
+    #####################
+    git_branches:
+        - master
+    #####################
+    # Job Configuration #
+    #####################
+    properties:
+        - inject:
+            properties-content: '{env_vars|foo=bar}'
+        - disable-resume
+        - build-discarder:
+            num-to-keep: '{num_to_keep|10}'
+            days-to-keep: '{days_to_keep|7}'
+    parameters:
+      - string:
+          name: git_repo_url
+          description: git server 地址 -- 例如： http://github.app.hd123.cn:10080
+          default: '{git_repo_url|http://github.app.hd123.cn:10080}'
+          trim: true
+      - string:
+          name: git_group
+          default: '{git_group|qianfan}'
+          description: git group
+          trim: true
+      - string:
+          name: git_project
+          description: git
+          default: '{git_project|dpos-server}'
+          trim : true
+      - string:
+          name: branch
+          default: '{branch|develop}'
+          description: git 分支
+      - string :
+          name: mvn_cmd
+          description: "mvn 指令，例如，mvn build deploy -Pdocker"
+          default: '{mvn_cmd|}'
+      - text:
+          name: post_shell
+          description: ''
+          default: '{post_shell|}'
+      - string:
+          name: email_recipients
+          description: '邮件接收人'
+          default: '{email_recipients|}'
+          trim: true
+      - string:
+          name: email_subject
+          description: 'email主题'
+          default: '{email_subject|}'
+          trim: true
+      - text:
+          name: post_builders
+          descript: "TODO: 定义postbuilder的数据结构"
+          default: '{post_builders|}'
+      - string:
+          name: node
+          default: '{node|master}'
+          description: 'Jenkins agent 节点label信息'
+          trim: true
+    sandbox: true
+    pipeline-scm:
+        scm:
+          - git:
+              url: '{git_server_base_url|https://gitee.com}/hdops/jenkins_builder.git'
+              branches: "{git_branches}"
+
+              clean:
+                  before: true
+        script-path: jenkinsfile/ci/Jenkinsfile.jdk
+        lightweight-checkout: true

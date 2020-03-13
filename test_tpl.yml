@@ -1,5 +1,5 @@
 job-template: 
-    id: deploy
+    id: test
     name: '{job_name}'
     project-type: pipeline
     description: '{description|sample}'
@@ -9,9 +9,6 @@ job-template:
     #####################
     git_branches: 
         - master
-    skipversion:
-        - --no-skipversion
-        - --skipversion
     #####################
     # Job Configuration #
     #####################
@@ -22,6 +19,17 @@ job-template:
         - build-discarder:
             num-to-keep: '{num_to_keep|10}'
             days-to-keep: '{days_to_keep|7}'
+    publishers:
+        - trigger-parameterized-builds:
+            - project: '{healthcheck_job_1}'
+              condition: 'SUCCESS'
+              predefined-parameters: |
+                DNET_PROFILE=$DNET_PROFILE
+                subsystem=$subsystem
+                svnreversion=$svnreversion
+                TRUST_PUBLIC_IP=$TRUST_PUBLIC_IP
+                GIT_BRANCH=$GIT_BRANCH
+                tag=$tag
     parameters:
       - choice:
           name: DNET_PROFILE
@@ -50,7 +58,9 @@ job-template:
       - choice:
           name: skipversion
           description: 数据库升级是否跳过版本检查
-          choices: '{skipversion}'
+          choices:
+            - --no-skipversion
+            - --skipversion
       - choice:
           name: skipversionupdate
           description: 数据库升级是否跳过版本号更新
@@ -79,8 +89,8 @@ job-template:
           description: ecs上执行数据库升级的线程
       - string:
           name: action
-          default: 'deploy'
-          description: deploy or delete
+          default: 'test'
+          description: test or delete
       - string:
           name: PRESET_IMAGE_VERSION
           default: 'None'
@@ -124,10 +134,10 @@ job-template:
     pipeline-scm:
         scm:
           - git:
-              url: '{git_server_base_url|https://gitee.com}/hdops/jenkins_builder.git'
+              url: https://gitee.com/hdops/jenkins_builder.git
               branches: "{git_branches}"
                   
               clean:
                   before: true
-        script-path: jenkinsfile/Jenkinsfile.deploy
+        script-path: jenkinsfile/Jenkinsfile.test
         lightweight-checkout: true

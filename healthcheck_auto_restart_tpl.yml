@@ -1,9 +1,11 @@
 job-template:
-    id: nginx_upstream_backup
+    id: healthcheck_auto_restart
     name: '{job_name}'
     project-type: pipeline
+    triggers: '{triggers_definition|}'
     description: '{description|sample}'
     disabled: '{disabled|false}'
+    
     #####################
     # Variable Defaults #
     #####################
@@ -34,25 +36,39 @@ job-template:
           description: toolset git branch
           trim: true
       - string:
-          name: path
-          default: '{path|/etc/nginx/conf.d}'
-          description: nginx path
+          name: subsystem
+          default: '{subsystem}'
+          description: 子系统，多值以逗号分隔
           trim: true
       - string:
-          name: sourcefile
-          default: '{sourcefile|upstream.conf}'
-          description: nginx upstream.conf
-          trim: true
+          name: svnreversion
+          default: ''
+          description: 上游job传入svn版本号，不需要人为填写
+      - choice:
+          name: TRUST_PUBLIC_IP
+          description: None 表示用内网部署，True 表示用外网部署
+          choices:
+            - 'None'
+            - 'True'
+      - choice:
+          name: tag
+          description: ''
+          choices:
+            - None
+            - blue
+            - green
       - string:
-          name: targetfile
-          default: '{targetfile|upstream.conf.bluegreen}'
-          description: nginx back
-          trim: true
+          name: container_restart_job
+          default: '{container_restart_job}'
+          description: 自动重启job
+      - choice:
+          name: whether_post
+          description: '是否开启构建失败和失败转成功的钉钉推送'
+          choices: '{whether_post}'
       - string:
           name: node
           default: '{node|master}'
           description: 'Jenkins agent 节点label信息'
-          trim: true
     sandbox: true
     pipeline-scm:
         scm:
@@ -62,5 +78,5 @@ job-template:
                   
               clean:
                   before: true
-        script-path: jenkinsfile/Jenkinsfile.nginx_upstream_backup
+        script-path: jenkinsfile/Jenkinsfile.healthcheck_auto_restart
         lightweight-checkout: true
